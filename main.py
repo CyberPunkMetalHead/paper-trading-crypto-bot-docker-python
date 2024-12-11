@@ -1,12 +1,13 @@
 import logging
+from typing import List
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from data_access.DAL.orders_DAL import OrdersDAL
 from data_access.DAL.portfolio_DAL import PortfolioDAL
 from data_access.DAL.coins_DAL import CoinsDAL
+from data_access.models.coin import Coin
 from services.coingecko_service import CoinGecko
 from services.trading_service import TradingService
-from workers.price_updater import update_coin_prices
 from utils.load_env import *
 from datetime import datetime
 import time
@@ -49,6 +50,29 @@ def initialize_coin_data():
         )
     print(f"Added {len(all_coins)} coins.")
     print(f"Added Prices to {len(all_coins)} coins.")
+
+
+def update_coin_prices() -> List[Coin]:
+    db_coins = coins_dal.get_all_coins()
+    db_coins_ids = [coin.coin_id for coin in db_coins]
+
+    if len(db_coins) == 0:
+        print("There are no coins in the database, cannot add prices")
+        return
+
+    coin_list = cg.get_coin_list()
+    new_coins = 0
+    for coin in coin_list:
+        if coin.coin_id not in db_coins_ids:
+            new_coins += 1
+            coins_dal.add_coin(coin.symbol, coin.coin_id)
+
+        coins_dal.add_price_to_coin(coin.symbol, datetime.now(), coin.prices[0].value)
+    print(f"Price updated for {len(db_coins)} coins")
+    print(
+        f"Inserted {new_coins} coins to the coins table likely due movements in the top 250."
+    )
+    return coin_list
 
 
 # Function to handle buy logic

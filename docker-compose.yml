@@ -10,7 +10,7 @@ services:
     environment:
           - DATABASE_URL=postgresql://admin:admin@db:5432/data
     volumes:
-      - .:/app  # Mount the app's code for development purposes
+      - .:/app
 
   db:
     container_name: db

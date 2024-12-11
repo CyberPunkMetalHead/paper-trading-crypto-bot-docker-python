@@ -3,8 +3,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from data_access.models.base import Base
 
-# from models.base import Base
-
 
 class PnLEntry(Base):
     __tablename__ = "pnl_entries"
