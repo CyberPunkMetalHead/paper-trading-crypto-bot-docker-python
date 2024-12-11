@@ -1,8 +1,7 @@
 from typing import Literal
 from sqlalchemy import Column, Float, String, DateTime, Integer
 from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from data_access.models.base import Base
 
 
 class PaperOrder(Base):

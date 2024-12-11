@@ -6,16 +6,20 @@ from data_access.DAL.portfolio_DAL import PortfolioDAL
 from data_access.DAL.coins_DAL import CoinsDAL
 from services.coingecko_service import CoinGecko
 from services.trading_service import TradingService
-from workers.initializer import initialize_coin_data
 from workers.price_updater import update_coin_prices
 from utils.load_env import *
 from datetime import datetime
 import time
+from data_access.models.base import Base
 
 logging.disable(logging.CRITICAL)
 
+print("Waiting For Database to mount...")
+time.sleep(5)
+
 # Create engine and session using the database URL from environment
 engine = create_engine(db_url, echo=True)
+Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -25,8 +29,26 @@ orders_dal = OrdersDAL(session)
 portfolio_dal = PortfolioDAL(session)
 cg = CoinGecko()
 
-# Populate database with initial data
-initialize_coin_data()
+
+def initialize_coin_data():
+    # Create engine and session using the database URL from environment
+
+    if len(coins_dal.get_all_coins()) > 0:
+        print("DB already initalized, skipping...")
+        return
+
+    cg = CoinGecko()
+
+    all_coins = cg.get_coin_list()
+
+    # Add coins and their initial prices to the list
+    for coin in all_coins:
+        coins_dal.add_coin(coin.symbol, coin.coin_id)
+        coins_dal.add_price_to_coin(
+            coin.symbol, coin.prices[0].timestamp, coin.prices[0].value
+        )
+    print(f"Added {len(all_coins)} coins.")
+    print(f"Added Prices to {len(all_coins)} coins.")
 
 
 # Function to handle buy logic
@@ -108,8 +130,8 @@ def handle_sell(coin, current_price):
 
 # Main execution logic
 def main():
-    print("Starting up database...")
-    time.sleep(5)
+    # Populate database with initial data
+    initialize_coin_data()
     while True:
         api_coins = update_coin_prices()
         for coin in api_coins:

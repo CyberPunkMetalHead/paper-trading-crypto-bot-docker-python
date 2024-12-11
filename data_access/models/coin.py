@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Float, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship, declarative_base
-
-Base = declarative_base()
+from data_access.models.base import Base
 
 
 class Coin(Base):

@@ -23,8 +23,6 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./data_access/tables:/docker-entrypoint-initdb.d  # Mount your SQL files for initialization
-
     restart: always
 
 volumes:

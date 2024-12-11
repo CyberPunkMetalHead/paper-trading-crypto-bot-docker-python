@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Float, String, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from data_access.models.base import Base
 
-Base = declarative_base()
+# from models.base import Base
 
 
 class PnLEntry(Base):
