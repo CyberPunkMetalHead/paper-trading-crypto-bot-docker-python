@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+          - DATABASE_URL=postgresql://admin:admin@db:5432/data
+    volumes:
+      - .:/app  # Mount the app's code for development purposes
+
+  db:
+    container_name: db
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: data
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./data_access/tables:/docker-entrypoint-initdb.d  # Mount your SQL files for initialization
+
+    restart: always
+
+volumes:
+  db_data:
