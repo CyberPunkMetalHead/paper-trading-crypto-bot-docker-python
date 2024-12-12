@@ -1,5 +1,6 @@
 import requests
 from data_access.models.coin import Coin, CoinPrice
+from enums.currencies import Currency
 from utils.load_env import *
 from typing import List
 from datetime import datetime
@@ -26,7 +27,7 @@ class CoinGecko:
     def get_coin_list(self) -> List[Coin]:
         request_url = (
             self.root
-            + "/coins/markets?order=market_cap_desc&per_page=250&vs_currency=usd&price_change_percentage=1h"
+            + f"/coins/markets?order=market_cap_desc&per_page=250&vs_currency={Currency.USD}&price_change_percentage=1h"
         )
         response = requests.get(request_url, headers=self.headers).json()
 
